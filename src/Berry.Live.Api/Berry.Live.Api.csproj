@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LiveStreamingServerNet" Version="0.31.1" />
+    <PackageReference Include="LiveStreamingServerNet.AdminPanelUI" Version="0.31.1" />
+    <PackageReference Include="LiveStreamingServerNet.Flv" Version="0.31.1" />
+    <PackageReference Include="LiveStreamingServerNet.Standalone" Version="0.31.1" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.8.11" />
+  </ItemGroup>
+
+</Project>
