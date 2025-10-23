@@ -22,6 +22,25 @@ Berry.Live 是一个基于 .NET 9 和 LiveStreamingServerNet 库构建的**实�
   - 实时连接数据统计
 - **RESTful API**：提供编程接口获取直播流 URL 和配置信息
 
+## 流认证
+
+Berry.Live 现已支持流认证功能。通过 `src/Berry.Live.Api/Auth/` 目录下的相关组件（如 `RtmpAuthorizationHandler.cs`、`StreamKeyValidator.cs` 等），可对推流请求进行鉴权，确保只有合法用户才能推送直播流。
+
+### 流认证简介
+
+- 支持自定义流密钥校验逻辑
+- 可缓存流密钥，提升鉴权性能
+- 集成于 API 服务启动流程
+
+### 相关文件
+
+- `src/Berry.Live.Api/Auth/IStreamKeyValidator.cs`：流密钥校验接口
+- `src/Berry.Live.Api/Auth/StreamKeyValidator.cs`：默认实现
+- `src/Berry.Live.Api/Auth/RtmpAuthorizationHandler.cs`：RTMP 推流鉴权处理器
+- `src/Berry.Live.Api/Auth/StreamKeyCache.cs`：流密钥缓存
+
+如需自定义流认证逻辑，可扩展上述接口或实现。
+
 ### 📡 API 接口
 - **直播流 URL 获取**：`GET /api/v1/controller/Get?userId={用户ID}`
   - 返回指定用户的 RTMP 推流地址
