@@ -6,6 +6,7 @@ using LiveStreamingServerNet.Standalone.Installer;
 using Microsoft.Extensions.FileProviders;
 using Scalar.AspNetCore;
 using System.Net;
+using Berry.Live.Api.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,11 +16,23 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+// æ³¨å†Œæµå¯†é’¥ç¼“å­˜æœåŠ¡
+builder.Services.AddSingleton<IStreamKeyCache, StreamKeyCache>();
+
 var rtmpPort = builder.Configuration.GetValue<int>("RtmpPort", 1935);
 
 builder.Services.AddLiveStreamingServer(
     new IPEndPoint(IPAddress.Any, rtmpPort),
-    options => options.AddStandaloneServices().AddFlv()
+    options => {
+        options
+        .AddStandaloneServices()
+        .AddFlv();
+
+        // æ³¨å†Œæµå¯†é’¥ç¼“å­˜æœåŠ¡
+        options.Services.AddSingleton<IStreamKeyCache, StreamKeyCache>();
+        options.Services.AddSingleton<IStreamKeyValidator, StreamKeyValidator>();
+        options.AddAuthorizationHandler<RtmpAuthorizationHandler>();
+    }
 );
 
 var app = builder.Build();
@@ -40,14 +53,14 @@ app.UseWebSocketFlv();
 app.UseHttpFlv();
 
 app.MapStandaloneServerApiEndPoints();
-// ½âÎö Admin Panel UI ¾²Ì¬×ÊÔ´Â·¾¶£¨Êä³öÄ¿Â¼ÓÅÏÈ£¬ÕÒ²»µ½Ôò»ØÍËµ½ NuGet °ü contentFiles£©
+// ï¿½ï¿½ï¿½ï¿½ Admin Panel UI ï¿½ï¿½Ì¬ï¿½ï¿½Ô´Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿Â¼ï¿½ï¿½ï¿½È£ï¿½ï¿½Ò²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½ NuGet ï¿½ï¿½ contentFilesï¿½ï¿½
 static string? ResolveAdminPanelUiPath()
 {
-    // 1) ·¢²¼/Êä³öÄ¿Â¼: <bin>/admin-panel-ui
+    // 1) ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½Ä¿Â¼: <bin>/admin-panel-ui
     var appUi = Path.Combine(AppContext.BaseDirectory, "admin-panel-ui");
     if (Directory.Exists(appUi)) return appUi;
 
-    // 2) ¿ª·¢»ú»ØÍË: NuGet °ü»º´æÖĞµÄ contentFiles/any/any/admin-panel-ui
+    // 2) ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: NuGet ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğµï¿½ contentFiles/any/any/admin-panel-ui
     var asmDir = Path.GetDirectoryName(typeof(AdminPanelUIOptions).Assembly.Location);
     var versionDir = asmDir is null ? null : Directory.GetParent(asmDir)?.Parent?.FullName; // ...\0.31.1
     if (!string.IsNullOrEmpty(versionDir))
@@ -60,7 +73,7 @@ static string? ResolveAdminPanelUiPath()
 }
 
 var adminUiRoot = ResolveAdminPanelUiPath()
-    ?? throw new InvalidOperationException("Î´ÕÒµ½ Admin Panel UI ¾²Ì¬×ÊÔ´Ä¿Â¼¡£Çë½« 'admin-panel-ui' Ä¿Â¼¸´ÖÆµ½Êä³öÄ¿Â¼£¬»òÊÖ¶¯Ö¸¶¨ÓĞĞ§µÄ FileProvider¡£");
+    ?? throw new InvalidOperationException("Î´ï¿½Òµï¿½ Admin Panel UI ï¿½ï¿½Ì¬ï¿½ï¿½Ô´Ä¿Â¼ï¿½ï¿½ï¿½ë½« 'admin-panel-ui' Ä¿Â¼ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½Ä¿Â¼ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Ğ§ï¿½ï¿½ FileProviderï¿½ï¿½");
 
 app.UseAdminPanelUI(new AdminPanelUIOptions
 {
