@@ -71,7 +71,7 @@ static string? ResolveAdminPanelUiPath()
 }
 
 var adminUiRoot = ResolveAdminPanelUiPath()
-    ?? throw new InvalidOperationException("δ�ҵ� Admin Panel UI ��̬��ԴĿ¼���뽫 'admin-panel-ui' Ŀ¼���Ƶ����Ŀ¼�����ֶ�ָ����Ч�� FileProvider��");
+    ?? throw new InvalidOperationException("未找到 Admin Panel UI 静态资源目录，请将 'admin-panel-ui' 目录拷贝到程序目录，或手动指定有效的 FileProvider。");
 
 app.UseAdminPanelUI(new AdminPanelUIOptions
 {
