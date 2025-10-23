@@ -53,14 +53,12 @@ app.UseWebSocketFlv();
 app.UseHttpFlv();
 
 app.MapStandaloneServerApiEndPoints();
-// ���� Admin Panel UI ��̬��Դ·�������Ŀ¼���ȣ��Ҳ�������˵� NuGet �� contentFiles��
+
 static string? ResolveAdminPanelUiPath()
 {
-    // 1) ����/���Ŀ¼: <bin>/admin-panel-ui
     var appUi = Path.Combine(AppContext.BaseDirectory, "admin-panel-ui");
     if (Directory.Exists(appUi)) return appUi;
 
-    // 2) ����������: NuGet �������е� contentFiles/any/any/admin-panel-ui
     var asmDir = Path.GetDirectoryName(typeof(AdminPanelUIOptions).Assembly.Location);
     var versionDir = asmDir is null ? null : Directory.GetParent(asmDir)?.Parent?.FullName; // ...\0.31.1
     if (!string.IsNullOrEmpty(versionDir))
