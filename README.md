@@ -103,8 +103,8 @@ GET /api/v1/controller/Get?userId=your_user_id
 ```json
 {
   "rtmpUrl": "rtmp://localhost:1935/live/your_user_id",
-  "flvUrl": "http://localhost:5000/flv/live/your_user_id.flv",
-  "wsFlvUrl": "ws://localhost:5000/wsflv/live/your_user_id.flv"
+  "flvUrl": "http://localhost:5000/live/your_user_id.flv",
+  "wsFlvUrl": "ws://localhost:5000/live/your_user_id.flv"
 }
 ```
 
@@ -119,8 +119,8 @@ ffmpeg -i input.mp4 -c copy -f flv rtmp://localhost:1935/live/your_user_id
 ```
 
 ### 3. 拉流观看
-- **HTTP-FLV**：在支持 FLV 的播放器中打开 `http://localhost:5000/flv/live/your_user_id.flv`
-- **WebSocket-FLV**：在 Web 页面中使用 WebSocket 连接 `ws://localhost:5000/wsflv/live/your_user_id.flv`
+- **HTTP-FLV**：在支持 FLV 的播放器中打开 `http://localhost:5000/live/your_user_id.flv`
+- **WebSocket-FLV**：在 Web 页面中使用 WebSocket 连接 `ws://localhost:5000/live/your_user_id.flv`
 
 ### 4. 管理界面
 访问 `http://localhost:5000/ui` 查看：

@@ -27,8 +27,8 @@ public class LiveController: ApiControllerBase
             StreamId = userId,
             StreamKey = streamKey,
             RtmpUrl = $"rtmp://{Request.Host.Host}:{rtmpPort}/live/{userId}?key={streamKey}",
-            FlvUrl = $"http://{Request.Host.Host}/flv/live/{userId}.flv",
-            WsFlvUrl = $"ws://{Request.Host.Host}/wsflv/live/{userId}.flv"
+            FlvUrl = $"http://{Request.Host.Host}/live/{userId}.flv",
+            WsFlvUrl = $"ws://{Request.Host.Host}/live/{userId}.flv"
         });
     }
 }
