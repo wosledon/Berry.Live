@@ -7,6 +7,10 @@ using Microsoft.Extensions.FileProviders;
 using Scalar.AspNetCore;
 using System.Net;
 using Berry.Live.Api.Auth;
+using Microsoft.EntityFrameworkCore;
+using Berry.Live.Infrastructure.Data;
+using Berry.Live.Application.Interfaces;
+using Berry.Live.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +19,28 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// 配置CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+// 配置 SQLite 数据库
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// 注册应用服务
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ILiveRoomService, LiveRoomService>();
+
+// 注册RTMP认证处理器
+builder.Services.AddScoped<RtmpAuthorizationHandler>();
 
 // 注册流密钥缓存服务
 builder.Services.AddSingleton<IStreamKeyCache, StreamKeyCache>();
@@ -46,13 +72,24 @@ if (app.Environment.IsDevelopment())
 app.MapOpenApi();
 app.MapScalarApiReference("/api");
 
+app.UseCors("AllowAll");
+
 app.MapControllers();
+
+// 应用数据库迁移
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+}
 
 app.UseWebSockets();
 app.UseWebSocketFlv();
 app.UseHttpFlv();
 
 app.MapStandaloneServerApiEndPoints();
+
+app.Run();
 
 static string? ResolveAdminPanelUiPath()
 {

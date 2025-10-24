@@ -13,6 +13,14 @@
     <PackageReference Include="LiveStreamingServerNet.Standalone" Version="0.31.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.8.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Berry.Live.Application\Berry.Live.Application.csproj" />
+    <ProjectReference Include="..\Berry.Live.Domain\Berry.Live.Domain.csproj" />
+    <ProjectReference Include="..\Berry.Live.Infrastructure\Berry.Live.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

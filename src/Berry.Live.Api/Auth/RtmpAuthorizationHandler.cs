@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Berry.Live.Application.Interfaces;
 using LiveStreamingServerNet.Networking.Contracts;
 using LiveStreamingServerNet.Rtmp.Server.Auth;
 using LiveStreamingServerNet.Rtmp.Server.Auth.Contracts;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Berry.Live.Api.Auth;
 
@@ -11,15 +13,15 @@ namespace Berry.Live.Api.Auth;
 /// </summary>
 public class RtmpAuthorizationHandler : IAuthorizationHandler
 {
-    private readonly IStreamKeyValidator _streamKeyValidator;
+    private readonly IServiceProvider _serviceProvider;
 
     /// <summary>
     /// 构造函数
     /// </summary>
-    /// <param name="streamKeyValidator">流密钥验证器</param>
-    public RtmpAuthorizationHandler(IStreamKeyValidator streamKeyValidator)
+    /// <param name="serviceProvider">服务提供商</param>
+    public RtmpAuthorizationHandler(IServiceProvider serviceProvider)
     {
-        _streamKeyValidator = streamKeyValidator;
+        _serviceProvider = serviceProvider;
     }
 
     /// <summary>
@@ -36,18 +38,21 @@ public class RtmpAuthorizationHandler : IAuthorizationHandler
         IReadOnlyDictionary<string, string> streamArguments,
         string publishingType)
     {
-        // 从流路径中提取流ID (格式: /live/{streamId})
-        var streamId = ExtractStreamIdFromPath(streamPath);
-        if (string.IsNullOrEmpty(streamId))
+        // 从流路径中提取流密钥 (格式: /live/{streamKey})
+        var streamKey = ExtractStreamIdFromPath(streamPath);
+        if (string.IsNullOrEmpty(streamKey))
         {
             return AuthorizationResult.Unauthorized("Invalid stream path");
         }
 
-        // 检查流参数中是否包含streamKey
-        if (streamArguments.TryGetValue("streamKey", out var streamKey))
+        // 创建作用域来解析 Scoped 服务
+        using (var scope = _serviceProvider.CreateScope())
         {
-            // 验证流ID和密钥的匹配关系
-            if (await _streamKeyValidator.ValidateStreamKey(streamId, streamKey))
+            var liveRoomService = scope.ServiceProvider.GetRequiredService<ILiveRoomService>();
+
+            // 直接使用流密钥进行验证
+            var liveRoom = await liveRoomService.GetLiveRoomByStreamKeyAsync(streamKey);
+            if (liveRoom != null && liveRoom.StreamKey == streamKey)
             {
                 return AuthorizationResult.Authorized();
             }
@@ -73,10 +78,10 @@ public class RtmpAuthorizationHandler : IAuthorizationHandler
     }
 
     /// <summary>
-    /// 从流路径中提取流ID
+    /// 从流路径中提取流密钥
     /// </summary>
-    /// <param name="streamPath">流路径 (格式: /live/{streamId})</param>
-    /// <returns>流ID，如果无法提取则返回null</returns>
+    /// <param name="streamPath">流路径 (格式: /live/{streamKey})</param>
+    /// <returns>流密钥，如果无法提取则返回null</returns>
     private string? ExtractStreamIdFromPath(string streamPath)
     {
         // 路径格式: /live/{streamId}
