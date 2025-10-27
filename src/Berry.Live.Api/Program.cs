@@ -49,6 +49,7 @@ app.MapScalarApiReference("/api");
 app.MapControllers();
 
 app.UseWebSockets();
+app.UseMiddleware<FlvAuthorizationMiddleware>();
 app.UseWebSocketFlv();
 app.UseHttpFlv();
 

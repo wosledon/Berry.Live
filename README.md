@@ -28,19 +28,21 @@ Berry.Live 是一个基于 .NET 9 和 LiveStreamingServerNet 库构建的**实�
 
 ## 流认证
 
-Berry.Live 现已支持流认证功能。通过 `src/Berry.Live.Api/Auth/` 目录下的相关组件（如 `RtmpAuthorizationHandler.cs`、`StreamKeyValidator.cs` 等），可对推流请求进行鉴权，确保只有合法用户才能推送直播流。
+Berry.Live 现已支持流认证功能。通过 `src/Berry.Live.Api/Auth/` 目录下的相关组件（如 `RtmpAuthorizationHandler.cs`、`StreamKeyValidator.cs`、`FlvAuthorizationMiddleware.cs` 等），可对推流和拉流请求进行鉴权，确保只有合法用户才能推送和拉取直播流。
 
 ### 流认证简介
 
 - 支持自定义流密钥校验逻辑
 - 可缓存流密钥，提升鉴权性能
 - 集成于 API 服务启动流程
+- 支持 RTMP 推流、HTTP-FLV 和 WebSocket-FLV 拉流鉴权
 
 ### 相关文件
 
 - `src/Berry.Live.Api/Auth/IStreamKeyValidator.cs`：流密钥校验接口
 - `src/Berry.Live.Api/Auth/StreamKeyValidator.cs`：默认实现
 - `src/Berry.Live.Api/Auth/RtmpAuthorizationHandler.cs`：RTMP 推流鉴权处理器
+- `src/Berry.Live.Api/Auth/FlvAuthorizationMiddleware.cs`：HTTP-FLV 和 WS-FLV 拉流鉴权中间件
 - `src/Berry.Live.Api/Auth/StreamKeyCache.cs`：流密钥缓存
 
 如需自定义流认证逻辑，可扩展上述接口或实现。
@@ -119,8 +121,10 @@ ffmpeg -i input.mp4 -c copy -f flv rtmp://localhost:1935/live/your_user_id
 ```
 
 ### 3. 拉流观看
-- **HTTP-FLV**：在支持 FLV 的播放器中打开 `http://localhost:5000/live/your_user_id.flv`
-- **WebSocket-FLV**：在 Web 页面中使用 WebSocket 连接 `ws://localhost:5000/live/your_user_id.flv`
+- **HTTP-FLV**：在支持 FLV 的播放器中打开 `http://localhost:5000/live/your_user_id.flv?key=your_stream_key`
+- **WebSocket-FLV**：在 Web 页面中使用 WebSocket 连接 `ws://localhost:5000/live/your_user_id.flv?key=your_stream_key`
+
+**注意**：拉流时必须在 URL 中附加 `?key=your_stream_key` 参数进行鉴权，否则将被拒绝访问。
 
 ### 4. 管理界面
 访问 `http://localhost:5000/ui` 查看：
