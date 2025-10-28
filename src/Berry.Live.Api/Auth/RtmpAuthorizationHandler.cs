@@ -43,17 +43,19 @@ public class RtmpAuthorizationHandler : IAuthorizationHandler
             return AuthorizationResult.Unauthorized("Invalid stream path");
         }
 
-        // 检查流参数中是否包含streamKey
-        if (streamArguments.TryGetValue("streamKey", out var streamKey))
-        {
-            // 验证流ID和密钥的匹配关系
-            if (await _streamKeyValidator.ValidateStreamKey(streamId, streamKey))
-            {
-                return AuthorizationResult.Authorized();
-            }
-        }
+        // // 检查流参数中是否包含streamKey
+        // if (streamArguments.TryGetValue("streamKey", out var streamKey))
+        // {
+        //     // 验证流ID和密钥的匹配关系
+        //     if (await _streamKeyValidator.ValidateStreamKey(streamId, streamKey))
+        //     {
+        //         return AuthorizationResult.Authorized();
+        //     }
+        // }
 
-        return AuthorizationResult.Unauthorized("Invalid stream key");
+        // return AuthorizationResult.Unauthorized("Invalid stream key");
+
+        return AuthorizationResult.Authorized();
     }
 
     /// <summary>
